@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
+export const currency =  '₹'
 
 function App() {
   const [token, setToken] = useState(
@@ -31,7 +32,7 @@ function App() {
           <hr />
           <div className="flex w-full">
             <Sidebar />
-            <div className="w-[70] mx-auto ml-[max(5vw,25px)] my-8 text-gray-600 text-base">
+            <div className="w-full px-4 md:px-8 my-8 text-gray-600 text-base">
               <Routes>
                 <Route path="/" element={<Navigate to="/list" />} />{" "}
                 {/* ✅ Add this */}
