@@ -5,7 +5,14 @@ import { ShopContext } from '../context/ShopContext';
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
-  const { setShowSearch,getCartCount } = useContext(ShopContext);
+  const { setShowSearch, getCartCount, navigate, token, setToken, setCartItems } = useContext(ShopContext);
+
+  const logout = () => {
+    navigate('/login')
+    localStorage.removeItem('token')
+    setToken('')
+    setCartItems({})
+  }
 
   // 👇 Detect current route
   const location = useLocation();
@@ -42,14 +49,16 @@ const Navbar = () => {
         )}
 
         <div className='group relative'>
-          <Link to='/login'><img src={assets.profile_icon} alt="profile" className='w-4 cursor-pointer' /></Link>
+          <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} alt="profile" className='w-5 cursor-pointer' />
+          {token && 
           <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
             <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rouded'>
               <p className='cursor-pointer hover:text-[#c95c2d]'>My Profile</p>
-              <Link to='/orders'><p className='cursor-pointer hover:text-[#c95c2d]'>Orders</p></Link>
-              <p className='cursor-pointer hover:text-[#c95c2d]'>Logout</p>
+              <p onClick={()=>navigate('/orders')} className='cursor-pointer hover:text-[#c95c2d]'>Orders</p>
+              <p onClick={logout} className='cursor-pointer hover:text-[#c95c2d]'>Logout</p>
             </div>
           </div>
+          }
         </div>
 
         <Link to='/cart' className='relative'>
