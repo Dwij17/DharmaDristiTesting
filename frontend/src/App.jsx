@@ -1,7 +1,7 @@
 import React from 'react'
 import {Routes, Route} from 'react-router-dom'
 import Home from './pages/Home'
-import Categories from './pages/Categories'
+import Shop from './pages/Shop'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Product from './pages/Product'
@@ -15,6 +15,9 @@ import Collection from './pages/Collection'
 import SearchBar from './components/SearchBar'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import Wishlist from './pages/Wishlist'
+import OurPolicy from './components/OurPolicy'
+import ForgotPassword from './pages/Frontend'
 
 const App = () => {
   return (
@@ -28,6 +31,7 @@ const App = () => {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/categories' element={<Collection />} />
+          <Route path='/shop' element={<Shop />} />
           <Route path='/about' element={<About />} />
           <Route path='/contact' element={<Contact />} />
           <Route path='/product/:productId' element={<Product />} />
@@ -35,6 +39,9 @@ const App = () => {
           <Route path='/login' element={<Login />} />
           <Route path='/place-order' element={<PlaceOrder />} />
           <Route path='/orders' element={<Orders />} />
+          <Route path='/wishlist' element={<Wishlist />} />
+          <Route path="/privacy" element={<OurPolicy />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
         <Footer />
       </div>

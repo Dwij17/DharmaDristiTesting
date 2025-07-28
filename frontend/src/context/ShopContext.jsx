@@ -7,7 +7,8 @@ export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
   const currency = '₹';
-  const delivery_fee = 10;
+  let delivery_fee = 0;
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -15,6 +16,31 @@ const ShopContextProvider = (props) => {
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState('')
   const navigate = useNavigate();
+  const [wishlistItems, setWishlistItems] = useState([]);
+
+  const addToWishlist = async itemId => {
+    if (!wishlistItems.includes(itemId)) {
+      setWishlistItems(prev => [...prev, itemId]);
+      toast.success("Added to wishlist!");
+      if (token) {
+        await axios.post(`${backendUrl}/api/user/wishlist/add`, { itemId }, { headers: { token } });
+      }
+    }
+  };
+
+  const removeFromWishlist = async itemId => {
+    setWishlistItems(prev => prev.filter(id => id !== itemId));
+    toast.info("Removed from wishlist!");
+    if (token) {
+      await axios.post(`${backendUrl}/api/user/wishlist/remove`, { itemId }, { headers: { token } });
+    }
+  };
+
+  const getUserWishlist = async token => {
+    const res = await axios.post(`${backendUrl}/api/user/wishlist`, {}, { headers: { token } });
+    if (res.data.success) setWishlistItems(res.data.wishlist);
+  };
+
 
   const addToCart = async (itemId) => {
     let cartData = structuredClone(cartItems);
@@ -56,6 +82,11 @@ const ShopContextProvider = (props) => {
     }
     return totalAmount;
   };
+
+  let subtotal = getCartAmount();
+  if (subtotal >= 1000) {
+    delivery_fee = 0;
+  }
 
   const updateQuantity = async (itemID, quantity) => {
     if (!itemID) {
@@ -116,11 +147,13 @@ const ShopContextProvider = (props) => {
   }, [])
 
   useEffect(() => {
-    if (!token && localStorage.getItem('token')) {
-      setToken(localStorage.getItem('token'))
-      getUserCart(localStorage.getItem('token'))
+    const localToken = localStorage.getItem("token");
+    if (!token && localToken) {
+      setToken(localToken);
+      getUserCart(localToken); // ✅ fetch cart on load
+      getUserWishlist(localToken); // ✅ load wishlist
     }
-  }, [])
+  }, []);
 
   const value = {
     products, currency, delivery_fee,
@@ -128,7 +161,10 @@ const ShopContextProvider = (props) => {
     cartItems, setCartItems, addToCart,
     getCartCount, updateQuantity, getCartAmount,
     navigate, backendUrl,
-    setToken, token
+    setToken, token,
+    wishlistItems,
+    addToWishlist,
+    removeFromWishlist,
   };
 
   return (

@@ -4,6 +4,9 @@ import axios from 'axios';
 import { backendUrl } from '../App.jsx';
 import { toast } from 'react-toastify';
 
+
+
+
 const Add = ({ token }) => {
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
@@ -14,9 +17,68 @@ const Add = ({ token }) => {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
 
-  const [category, setCategory] = useState('Men');
-  const [subCategory, setSubCategory] = useState('Topwear');
+  const [category, setCategory] = useState('Puja Samagri'); // or any valid category from the updated list
+
+  const [subCategory, setSubCategory] = useState('');
+
   const [bestseller, setBestseller] = useState(false);
+
+  // Subcategories mapping
+  const subCategories = {
+    "Puja Samagri": [
+      "Roli (Kumkum / Sindoor)", "Haldi", "Chandan", "Akshat", "Ganga Jal", "Rose water", "Honey", "Cow Ghee",
+      "Camphor", "Agarbatti", "Dhoop", "Sambrani Cups", "Cotton Wicks", "Matchbox / Lighter", "Kapoor dani",
+      "Turmeric sticks", "Betel leaves & nut", "Cloves & Cardamom", "Dry coconut", "Red/Yellow thread",
+      "Ashtagandha", "Janeyu", "Panchpatra & Achamani", "Gomutra", "Sacred ash", "Guggul Resin", "Havan samidha",
+      "Havan kund", "Havan spoon & utensils", "Paan leaves", "Cow Dung Cakes"
+    ],
+    "Diya, Lamps & Lighting": [
+      "Mitti Diya", "Brass Diya", "Akhand Diya", "Oil lamps", "LED Electric Diyas", "Diya oils", "Diya accessories"
+    ],
+    "Mala & Spiritual Jewelry": [
+      "Rudraksha mala", "Rudraksha bracelet", "Tulsi mala", "Sphatik mala", "Chandan mala", "Navratna bracelet/ring",
+      "Gemstone lockets & rings", "Hanuman gada pendant", "Om / Swastik lockets", "Trishul / Damru pendants"
+    ],
+    "Meditation & Healing Items": [
+      "Meditation cushions", "Singing bowls", "Smudging sticks", "Essential oils", "Aroma diffusers", "Chakra stones",
+      "Energy pyramids", "Healing wands", "Pendulums for Reiki"
+    ],
+    "Yantras & Vastu Items": [
+      "Shri Yantra", "Kuber Yantra", "Vastu Dosh Yantras", "Bagua mirrors", "Brass tortoise", "Pyramid Yantra",
+      "Gomti Chakra", "Cowrie Shells", "Feng Shui items", "Vastu compass", "Surya Yantra", "Hanuman Yantra",
+      "Durga Beesa Yantra", "Vastu Danda", "Sea Salt"
+    ],
+    "Idols, Photos & Murti": [
+      "Marble idols", "Brass idols", "Panchdhatu idols", "Polyresin idols", "Miniature idols", "Keychain idols",
+      "Photo frames", "Wall posters", "Digital LED frames"
+    ],
+    "Religious Literature & Books": [
+      "Bhagavad Gita", "Ramayana", "Hanuman Chalisa", "Sai Satcharitra", "Puranas", "Vedas", "Lal Kitab",
+      "Panchang", "Mantra books", "Bhajan books", "Aarti Sangrah"
+    ],
+    "Natural & Ayurvedic Items": [
+      "Herbal dhoop", "Gaumutra Ark", "Panchagavya Products", "Herbal bath powders", "Neem / Tulsi Soap",
+      "Ayurvedic oils", "Vibhuti", "Ubtan"
+    ],
+    "Temple Accessories": [
+      "Mandirs", "Ghanti", "Puja chowki", "Wooden stools", "Copper lota", "Bell chains", "Hanging diyas",
+      "Puja shelves"
+    ],
+    "Gift Items": [
+      "Festival hampers", "Return gift packs", "Corporate gifts", "Customized spiritual boxes", "Prasad boxes"
+    ],
+    "Festival Specific Items": [
+      "Holi Items", "Diwali Items", "Navratri Items", "Raksha Bandhan Items", "Karva Chauth Items", "Janmashtami Items"
+    ],
+    "Eco-friendly Spiritual Products": [
+      "Cow dung diyas", "Clay Ganesha", "Herbal havan cups", "Biodegradable packaging", "Palm leaf scriptures"
+    ],
+    "Astrology Services & Products": [
+      "Personalized horoscope", "Gemstone recommendation", "Pooja recommendations", "Pooja kits", "Pandit booking",
+      "Astro consultation", "Grah shanti kits"
+    ]
+  };
+
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -29,6 +91,7 @@ const Add = ({ token }) => {
       formData.append('category', category);
       formData.append('subCategory', subCategory);
       formData.append('bestseller', bestseller);
+
 
       if (image1) formData.append('image1', image1);
       if (image2) formData.append('image2', image2);
@@ -56,8 +119,9 @@ const Add = ({ token }) => {
         setImage3(false);
         setImage4(false);
         setBestseller(false);
+        setSubCategory('');
       } else {
-        toast.error(response.data.message || "Failed to add product");
+        toast.error(response.data.message || 'Failed to add product');
       }
     } catch (error) {
       console.error('Add Product Error:', error);
@@ -66,7 +130,11 @@ const Add = ({ token }) => {
   };
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-3">
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col w-full items-start gap-3"
+    >
+      {/* Image Upload */}
       <div>
         <p className="mb-2">Upload Image</p>
         <div className="flex gap-2">
@@ -94,6 +162,7 @@ const Add = ({ token }) => {
         </div>
       </div>
 
+      {/* Product Name */}
       <div className="w-full">
         <p className="mb-2">Product name</p>
         <input
@@ -106,6 +175,7 @@ const Add = ({ token }) => {
         />
       </div>
 
+      {/* Description */}
       <div className="w-full">
         <p className="mb-2">Product description</p>
         <textarea
@@ -117,20 +187,28 @@ const Add = ({ token }) => {
         />
       </div>
 
+      {/* Category & Subcategory & Price */}
       <div className="flex flex-col sm:flex-row gap-4 w-full">
+        {/* Category */}
         <div>
           <p className="mb-2">Product category</p>
           <select
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setSubCategory('');
+            }}
             value={category}
             className="px-3 py-2 border"
-          >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Kids">Kids</option>
+          >{Object.keys(subCategories).map((cat, i) => (
+            <option key={i} value={cat}>
+              {cat}
+            </option>
+          ))}
+
           </select>
         </div>
 
+        {/* Subcategory */}
         <div>
           <p className="mb-2">Sub category</p>
           <select
@@ -138,12 +216,16 @@ const Add = ({ token }) => {
             value={subCategory}
             className="px-3 py-2 border"
           >
-            <option value="Topwear">Topwear</option>
-            <option value="Bottomwear">Bottomwear</option>
-            <option value="Winterwear">Winterwear</option>
+            <option value="">Select Subcategory</option>
+            {subCategories[category].map((sub, index) => (
+              <option key={index} value={sub}>
+                {sub}
+              </option>
+            ))}
           </select>
         </div>
 
+        {/* Price */}
         <div>
           <p className="mb-2">Product Price</p>
           <input
@@ -157,6 +239,7 @@ const Add = ({ token }) => {
         </div>
       </div>
 
+      {/* Bestseller checkbox */}
       <div className="flex items-center gap-2 mt-2">
         <input
           type="checkbox"
@@ -164,9 +247,12 @@ const Add = ({ token }) => {
           checked={bestseller}
           onChange={() => setBestseller((prev) => !prev)}
         />
-        <label htmlFor="bestseller" className="cursor-pointer">Add to bestseller</label>
+        <label htmlFor="bestseller" className="cursor-pointer">
+          Add to bestseller
+        </label>
       </div>
 
+      {/* Submit button */}
       <button type="submit" className="w-20 py-3 mt-4 bg-black text-white">
         ADD
       </button>

@@ -1,71 +1,64 @@
-import { syncIndexes } from "mongoose";
-import userModel from "../models/userModel.js"
+import userModel from "../models/userModel.js";
 
-// add product to user cart
+// Add to cart
 const addToCart = async (req, res) => {
-    try {
+  const { itemId } = req.body;
+  const { userId } = req.body;
 
-        const { userId, itemId } = req.body
+  try {
+    const user = await userModel.findById(userId);
+    const currentCart = user.cartData || {};
 
-        const userData = await userModel.findById(userId)
-        let cartData = await userData.cartData
+    currentCart[itemId] = (currentCart[itemId] || 0) + 1;
 
-        if (cartData[itemId]) {
-            if (cartData[itemId]) {
-                cartData[itemId] += 1
-            } else {
-                cartData[itemId] = 1
-            }
-        } else {
-            cartData[itemId] = {}
-            cartData[itemId] = 1
-        }
+    await userModel.findByIdAndUpdate(userId, { cartData: currentCart });
+    res.json({ success: true, message: "Item added to cart" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
-        await userModel.findByIdAndUpdate(userId, { cartData })
-
-        res.json({ success: true, message: "Added to Cart" })
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message })
-    }
-}
-
-// update user cart
+// Update cart item quantity
 const updateCart = async (req, res) => {
+  const { itemId, quantity, userId } = req.body;
+
+  try {
+    const user = await userModel.findById(userId);
+    const currentCart = user.cartData || {};
+
+    if (quantity === 0) {
+      delete currentCart[itemId];
+    } else {
+      currentCart[itemId] = quantity;
+    }
+
+    await userModel.findByIdAndUpdate(userId, { cartData: currentCart });
+    res.json({ success: true, message: "Cart updated" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Get cart
+const getCart = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const user = await userModel.findById(userId);
+    res.json({ success: true, cartData: user.cartData || {} });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const clearCart = async (req, res) => {
     try {
-        const { userId, itemId, quantity } = req.body;
-
-        const userData = await userModel.findById(userId);
-        let cartData = userData.cartData || {};
-
-        cartData[itemId] = quantity;
-
-        await userModel.findByIdAndUpdate(userId, { cartData });
-
-        res.json({ success: true, message: "Cart Updated" });
+        const userId = req.body.userId;
+        await userModel.findByIdAndUpdate(userId, { cartData: {} });
+        res.json({ success: true, message: "Cart cleared" });
     } catch (error) {
-        console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
 
-
-
-// get user cart data
-const getUserCart = async (req, res) => {
-    try {
-        const { userId } = req.body
-
-        const userData = await userModel.findById(userId)
-        let cartData = await userData.cartData;
-
-        res.json({ success: true, cartData })
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-};
-
-
-
-export { addToCart, updateCart, getUserCart }
+export { addToCart, updateCart, getCart, clearCart };
